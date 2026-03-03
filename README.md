@@ -14,7 +14,7 @@
 
 **GitLab License Generator** This project generates a GitLab license for **development purposes**. If you encounter any problems, please troubleshoot them on your own.
 
-> Last tested on GitLab v17.6.0-ee.
+> Last tested on GitLab v18.9.1-ee.
 
 ## Principles
 
@@ -173,6 +173,81 @@ If necessary, you can directly access the license upload page via:
 
 ```
 <YourGitLabURL>/admin/license/new
+```
+
+#### 4.5 Install in Helm Gitlab
+
+config map
+
+```
+kubectl create configmap gitlab-extra-config -n gitlab --from-file=GitLab.gitlab-license --from-file=.license_encryption_key.pub
+```
+
+
+part of gitlab values file:
+
+```
+global:
+  gitlab:
+    license:
+      secret: gitlab-license
+      key: license
+  edition: ee
+  hosts:
+    domain: leftie.xyz
+    https: true
+  ingress:
+    class: nginx
+    configureCertmanager: false
+    tls:
+      enabled: true
+      secretName: gitlab-tls
+  initialRootPassword:
+    secret: gitlab-root-password
+    key: password
+
+
+gitlab:
+  webservice:
+    extraVolumes: |
+      - name: extra-config
+        configMap:
+          name: gitlab-extra-config
+
+    extraVolumeMounts: |
+      - name: extra-config
+        mountPath: /srv/gitlab/GitLab.gitlab-license
+        subPath: GitLab.gitlab-license
+        readOnly: true
+      - name: extra-config
+        mountPath: /srv/gitlab/.license_encryption_key.pub
+        subPath: .license_encryption_key.pub
+        readOnly: true
+
+    extraEnv:
+      GITLAB_OMNIBUS_CONFIG: |
+        gitlab_rails['initial_license_file'] = "/srv/gitlab/GitLab.gitlab-license"
+
+  sidekiq:
+    extraVolumes: |
+      - name: extra-config
+        configMap:
+          name: gitlab-extra-config
+
+    extraVolumeMounts: |
+      - name: extra-config
+        mountPath: /srv/gitlab/GitLab.gitlab-license
+        subPath: GitLab.gitlab-license
+        readOnly: true
+      - name: extra-config
+        mountPath: /srv/gitlab/.license_encryption_key.pub
+        subPath: .license_encryption_key.pub
+        readOnly: true
+
+    extraEnv:
+      GITLAB_OMNIBUS_CONFIG: |
+        gitlab_rails['initial_license_file'] = "/srv/gitlab/GitLab.gitlab-license"
+
 ```
 
 #### 5. Disable Service Ping (optional)
