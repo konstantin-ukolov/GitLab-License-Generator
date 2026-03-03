@@ -160,22 +160,7 @@ The script generates a public key located in `build/public.key`. You need to rep
   docker-compose up -d
   ```
 
-#### 4. Install the license in GitLab
-
-Once the public key is replaced, log in to GitLab’s admin interface to install the generated license.
-
-1. Log in to GitLab as an administrator.
-2. Navigate to the **Admin Area** from the bottom-left corner.
-3. Go to **Settings > General** and upload the generated license file (`build/result.gitlab-license`).
-4. Check the **Terms of Service** checkbox and click **Add License**.
-
-If necessary, you can directly access the license upload page via:
-
-```
-<YourGitLabURL>/admin/license/new
-```
-
-#### 4.5 Install in Helm Gitlab
+#### 3.5 Install in Helm Gitlab
 
 config map
 
@@ -193,19 +178,6 @@ global:
       secret: gitlab-license
       key: license
   edition: ee
-  hosts:
-    domain: leftie.xyz
-    https: true
-  ingress:
-    class: nginx
-    configureCertmanager: false
-    tls:
-      enabled: true
-      secretName: gitlab-tls
-  initialRootPassword:
-    secret: gitlab-root-password
-    key: password
-
 
 gitlab:
   webservice:
@@ -248,6 +220,22 @@ gitlab:
       GITLAB_OMNIBUS_CONFIG: |
         gitlab_rails['initial_license_file'] = "/srv/gitlab/GitLab.gitlab-license"
 
+```
+
+
+#### 4. Install the license in GitLab
+
+Once the public key is replaced, log in to GitLab’s admin interface to install the generated license.
+
+1. Log in to GitLab as an administrator.
+2. Navigate to the **Admin Area** from the bottom-left corner.
+3. Go to **Settings > General** and upload the generated license file (`build/result.gitlab-license`).
+4. Check the **Terms of Service** checkbox and click **Add License**.
+
+If necessary, you can directly access the license upload page via:
+
+```
+<YourGitLabURL>/admin/license/new
 ```
 
 #### 5. Disable Service Ping (optional)
